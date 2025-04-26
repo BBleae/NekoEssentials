@@ -3,10 +3,13 @@
   "package": "net.nekocraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ExampleMixin",
-    "MixinPlayerManager"
+    "MixinPlayerManager",
+    "MixinPlayerManagerAccessor",
+    "MixinServerPlayNetworkHandler",
+    "MixinServerPlayerEntity",
+    "MixinWorldSaveHandler"
   ],
   "injectors": {
     "defaultRequire": 1
-	}
+  }
 }
