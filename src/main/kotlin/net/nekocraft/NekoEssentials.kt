@@ -5,7 +5,7 @@ import com.mojang.brigadier.CommandDispatcher
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.annotation.Config
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer
-import net.fabricmc.api.DedicatedServerModInitializer
+import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
@@ -22,10 +22,10 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 
-class NekoEssentials : DedicatedServerModInitializer {
+class NekoEssentials : ModInitializer {
     var luckPermsApi: LuckPerms? = null
 
-    override fun onInitializeServer() {
+    override fun onInitialize() {
         logger.trace("onInitializeServer")
 
         logger.debug("registering configs")

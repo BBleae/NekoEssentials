@@ -15,20 +15,20 @@ object HeadCommand {
         dispatcher.register(
             CommandManager.literal("head")
                 .then(
-                    CommandManager.argument<GameProfileArgumentType.GameProfileArgument?>("player", GameProfileArgumentType.gameProfile())
-                        .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
+                    CommandManager.argument("player", GameProfileArgumentType.gameProfile())
+                        .executes { context: CommandContext<ServerCommandSource?>? ->
                             execute(
                                 context?.source, context?.source?.player,
                                 GameProfileArgumentType.getProfileArgument(context, "player").iterator().next()
                             )
-                        })
+                        }
                 )
-                .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
+                .executes { context: CommandContext<ServerCommandSource?>? ->
                     execute(
                         context?.getSource(), context.getSource().getPlayer(),
                         context.getSource().getPlayer().getGameProfile()
                     )
-                })
+                }
         )
     }
 

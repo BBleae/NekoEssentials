@@ -1,8 +1,8 @@
 package net.nekocraft
 
 import net.minecraft.text.PlainTextContent.Literal
-import carpet.CarpetExtension;
-import carpet.logging.HUDController;
+import carpet.CarpetExtension
+import carpet.logging.HUDController
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText

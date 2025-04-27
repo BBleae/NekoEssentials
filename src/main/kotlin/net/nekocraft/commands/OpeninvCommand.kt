@@ -29,17 +29,17 @@ object OpeninvCommand {
 
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource, player: ServerPlayerEntity, profile: GameProfile): Int {
-        val targerPlayer: ServerPlayerEntity? = source.getServer().getPlayerManager().getPlayer(profile.getId())
+        val targerPlayer: ServerPlayerEntity? = source.server.playerManager.getPlayer(profile.getId())
         if (targerPlayer != null) {
             return OpeninvCommand.execute(source, player, targerPlayer)
         } else {
-            val saveHandler: WorldSaveHandler =
-                (source.getServer().getPlayerManager() as MixinPlayerManagerAccessor).getSaveHandler()
-            val playerData: NbtCompound? = (saveHandler as IMixinWorldSaveHandler).loadPlayerData(profile)
+            val saveHandler: PlayerSaveHandler =
+                (source.server.playerManager as MixinPlayerManagerAccessor).getSaveHandler()
+            val playerData: NbtCompound? = (saveHandler as IMixinPlayerSaveHandler).loadPlayerData(profile)
             if (playerData == null) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create()
 
             val playerEntity: PlayerEntity =
-                object : PlayerEntity(source.getServer().getOverworld(), BlockPos.ORIGIN, 0f, profile) {
+                object : PlayerEntity(source.server.overworld, BlockPos.ORIGIN, 0f, profile) {
                     val isSpectator: Boolean
                         get() = false
 
@@ -51,7 +51,7 @@ object OpeninvCommand {
             playerInventory.readNbt(playerData.getList("Inventory", 10))
 
             val inventory: OpeninvInventory =
-                OpeninvOfflineInventory(playerInventory, saveHandler, profile, source.getServer())
+                OpeninvOfflineInventory(playerInventory, saveHandler, profile, source.server)
             openinv(player, playerEntity, inventory)
         }
 
@@ -86,26 +86,24 @@ object OpeninvCommand {
 
 internal class OpeninvOfflineInventory(
     playerInv: PlayerInventory,
-    saveHandler: WorldSaveHandler,
+    private val saveHandler: PlayerSaveHandler,
     profile: GameProfile,
     server: MinecraftServer
 ) : OpeninvInventory(playerInv) {
-    private val saveHandler: WorldSaveHandler
     private val profile: GameProfile
     private val server: MinecraftServer
 
     init {
-        this.saveHandler = saveHandler
         this.profile = profile
         this.server = server
     }
 
     override fun onClose(player: PlayerEntity?) {
         super.onClose(player)
-        val playerData: NbtCompound? = (saveHandler as IMixinWorldSaveHandler).loadPlayerData(profile)
+        val playerData: NbtCompound? = (saveHandler as IMixinPlayerSaveHandler).loadPlayerData(profile)
         if (playerData == null) return
         playerData.put("Inventory", this.playerInventory.writeNbt(NbtList()))
-        (saveHandler as IMixinWorldSaveHandler).savePlayerData(profile, playerData)
+        (saveHandler as IMixinPlayerSaveHandler).savePlayerData(profile, playerData)
     }
 
     override fun canPlayerUse(player: PlayerEntity?): Boolean {

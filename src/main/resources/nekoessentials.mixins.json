@@ -7,7 +7,7 @@
     "MixinPlayerManagerAccessor",
     "MixinServerPlayNetworkHandler",
     "MixinServerPlayerEntity",
-    "MixinWorldSaveHandler"
+    "MixinPlayerSaveHandler"
   ],
   "injectors": {
     "defaultRequire": 1

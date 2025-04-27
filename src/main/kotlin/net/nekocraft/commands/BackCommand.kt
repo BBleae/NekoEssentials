@@ -22,7 +22,7 @@ object BackCommand {
     private val NO_BACK_EXCEPTION: SimpleCommandExceptionType =
         SimpleCommandExceptionType(net.minecraft.text.Text.of("没有返回点可以前往"))
     private val INVALID_DIMENSION_EXCEPTION: DynamicCommandExceptionType =
-        DynamicCommandExceptionType(java.util.function.Function { id: Any? -> net.minecraft.text.Text.of("invalid back dimension: $id") })
+        DynamicCommandExceptionType { id: Any? -> net.minecraft.text.Text.of("invalid back dimension: $id") }
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
@@ -41,7 +41,7 @@ object BackCommand {
         val loc: SavedLocation = (player as IMixinServerPlayerEntity).lastLocation
 
         val registryKey =
-            net.minecraft.registry.RegistryKey.of<World?>(RegistryKeys.WORLD, net.minecraft.util.Identifier(loc.world))
+            net.minecraft.registry.RegistryKey.of(RegistryKeys.WORLD, net.minecraft.util.Identifier(loc.world))
         val serverWorld: ServerWorld? = source.server.getWorld(registryKey)
         if (serverWorld == null) throw INVALID_DIMENSION_EXCEPTION.create(loc.world)
 

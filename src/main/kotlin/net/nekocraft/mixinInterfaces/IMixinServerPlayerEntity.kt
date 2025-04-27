@@ -7,7 +7,7 @@ import java.util.*
 interface IMixinServerPlayerEntity {
     var homeLocation: SavedLocation?
 
-    var lastLocation: SavedLocation
+    var lastLocation: SavedLocation?
 
     fun requestedTpa(req: TpaRequest?)
 

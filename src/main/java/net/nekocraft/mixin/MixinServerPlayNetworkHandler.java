@@ -1,6 +1,6 @@
 package net.nekocraft.mixin;
 
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
@@ -11,7 +11,7 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.PlainTextContent.Literal;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
@@ -19,6 +19,7 @@ import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -31,12 +32,15 @@ import java.util.Objects;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class MixinServerPlayNetworkHandler {
+    @Unique
     private final HashSet<String> notified = new HashSet<>();
+
     @Shadow
     public ServerPlayerEntity player;
+
     @Shadow
     @Final
-    private MinecraftServer server;
+    protected MinecraftServer server;
 
     @Shadow
     public abstract void requestTeleport(double x, double y, double z, float yaw, float pitch);
@@ -101,11 +105,11 @@ public abstract class MixinServerPlayNetworkHandler {
         ServerPlayerEntity chatPlayer = playerManager.getPlayer(playerName);
         if (chatPlayer == null) return new TranslatableTextContent(key, args);
 
-        MutableText result = MutableText.of(new LiteralTextContent("[这里]"));
+        MutableText result = MutableText.of(new Literal("[这里]"));
         if (chatPlayer.hasPermissionLevel(2)) {
-            result.append(MutableText.of(new LiteralTextContent("[这里]")).styled(style -> style.withColor(Formatting.GREEN)))
+            result.append(MutableText.of(new Literal("[这里]")).styled(style -> style.withColor(Formatting.GREEN)))
                     .append(playerDisplayName)
-                    .append(MutableText.of(new LiteralTextContent("[这里]")).styled(style -> style.withColor(Formatting.GREEN)));
+                    .append(MutableText.of(new Literal("[这里]")).styled(style -> style.withColor(Formatting.GREEN)));
         } else {
             result.append("<").append(playerDisplayName).append(">");
         }
@@ -115,25 +119,25 @@ public abstract class MixinServerPlayNetworkHandler {
             result.append(" ");
             ServerPlayerEntity atPlayer = playerManager.getPlayer(part);
             if (atPlayer != null) {
-                result.append(MutableText.of(new LiteralTextContent("[这里]"))
+                result.append(MutableText.of(new Literal("[这里]"))
                         .append(atPlayer.getDisplayName())
                         .styled(style -> style
                                 .withColor(Formatting.GREEN)));
                 if (!notified.contains(atPlayer.getUuidAsString())) {
                     notified.add(atPlayer.getUuidAsString());
-                    atPlayer.sendMessage(MutableText.of(new LiteralTextContent("[这里]"))
-                            .append(MutableText.of(new LiteralTextContent("[这里]")).styled(style -> style
+                    atPlayer.sendMessage(MutableText.of(new Literal("[这里]"))
+                            .append(MutableText.of(new Literal("[这里]")).styled(style -> style
                                     .withColor(Formatting.GREEN)))
                             .append(chatPlayer.getDisplayName())
-                            .append(MutableText.of(new LiteralTextContent("[这里]")).styled(style -> style
+                            .append(MutableText.of(new Literal("[这里]")).styled(style -> style
                                     .withColor(Formatting.GREEN))));
                 }
             } else {
-                result.append(MutableText.of(new LiteralTextContent(part)).styled(style -> style
+                result.append(MutableText.of(new Literal(part)).styled(style -> style
                         .withColor(Formatting.GRAY)));
             }
         }
 
-        return new TranslatableTextContent("disconnect.genericReason", result);
+        return new TranslatableTextContent("disconnect.genericReason", result.getContent().toString());
     }
 }

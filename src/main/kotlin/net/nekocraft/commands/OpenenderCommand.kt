@@ -2,7 +2,7 @@ package net.nekocraft.commands
 
 import com.mojang.brigadier.Command
 import net.minecraft.text.Text
-import net.minecraft.world.WorldSaveHandler
+import net.minecraft.world.PlayerSaveHandler
 import java.util.*
 import java.util.function.Predicate
 
@@ -29,9 +29,9 @@ object OpenenderCommand {
         if (targerPlayer != null) {
             return OpenenderCommand.execute(source, player, targerPlayer)
         } else {
-            val saveHandler: WorldSaveHandler =
+            val saveHandler: PlayerSaveHandler =
                 (source.getServer().getPlayerManager() as MixinPlayerManagerAccessor).getSaveHandler()
-            val playerData: NbtCompound? = (saveHandler as IMixinWorldSaveHandler).loadPlayerData(profile)
+            val playerData: NbtCompound? = (saveHandler as IMixinPlayerSaveHandler).loadPlayerData(profile)
             if (playerData == null) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create()
 
             val enderInventory = EnderChestInventory()
@@ -72,26 +72,24 @@ object OpenenderCommand {
 
 internal class OpenenderOfflineInventory(
     playerInv: EnderChestInventory,
-    saveHandler: WorldSaveHandler,
+    private val saveHandler: PlayerSaveHandler,
     profile: GameProfile,
     server: MinecraftServer
 ) : OpenenderInventory(playerInv) {
-    private val saveHandler: WorldSaveHandler
     private val profile: GameProfile
     private val server: MinecraftServer
 
     init {
-        this.saveHandler = saveHandler
         this.profile = profile
         this.server = server
     }
 
     override fun onClose(player: PlayerEntity?) {
         super.onClose(player)
-        val playerData: NbtCompound? = (saveHandler as IMixinWorldSaveHandler).loadPlayerData(profile)
+        val playerData: NbtCompound? = (saveHandler as IMixinPlayerSaveHandler).loadPlayerData(profile)
         if (playerData == null) return
         playerData.put("EnderItems", this.enderInventory.toNbtList())
-        (saveHandler as IMixinWorldSaveHandler).savePlayerData(profile, playerData)
+        (saveHandler as IMixinPlayerSaveHandler).savePlayerData(profile, playerData)
     }
 
     override fun canPlayerUse(player: PlayerEntity?): Boolean {

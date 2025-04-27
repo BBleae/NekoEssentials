@@ -6,6 +6,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.PlainTextContent.Literal;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
@@ -13,6 +15,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,20 +25,27 @@ import net.nekocraft.utils.TpaRequest;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.UUID;
 
 import static net.nekocraft.NekoEssentials.logger;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class MixinServerPlayerEntity extends PlayerEntity implements IMixinServerPlayerEntity {
+    @Unique
     private final HashMap<UUID, TpaRequest> tpaReqs = new HashMap<>();
+    @Unique
     private final HashMap<UUID, TpaRequest> tpaReqds = new HashMap<>();
+    @Unique
     @Nullable
     private SavedLocation homeLocation;
+    @Unique
     @Nullable
     private SavedLocation lastLocation;
+    @Unique
     @Nullable
     private SavedLocation toggleLocation;
+    @Unique
     private boolean acceptedRules = false;
 
     public MixinServerPlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
@@ -43,21 +53,24 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IM
     }
 
     @Shadow
-    public abstract void sendSystemMessage(Text message, UUID sender);
+    public abstract void sendMessage(Text message);
 
     @Shadow
-    public abstract ServerWorld getWorld();
+    public abstract ServerWorld getServerWorld();
 
     @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
     public void afterReadCustomDataFromNbt(NbtCompound nbt, CallbackInfo ci) {
-        if (nbt.contains("homeLocation", 10))
-            homeLocation = SavedLocation.formNBT(nbt.getCompound("homeLocation"));
-        if (nbt.contains("lastLocation", 10))
-            lastLocation = SavedLocation.formNBT(nbt.getCompound("lastLocation"));
-        if (nbt.contains("toggleLocation", 10))
-            lastLocation = SavedLocation.formNBT(nbt.getCompound("toggleLocation"));
-        if (nbt.contains("acceptedRules", 1))
-            acceptedRules = nbt.getBoolean("acceptedRules").orElse(false);
+        nbt.getCompound("homeLocation").ifPresent(it ->
+                homeLocation = SavedLocation.formNBT(it));
+
+        nbt.getCompound("lastLocation").ifPresent(it ->
+                lastLocation = SavedLocation.formNBT(it));
+
+        nbt.getCompound("toggleLocation").ifPresent(it ->
+                toggleLocation = SavedLocation.formNBT(it));
+
+        nbt.getCompound("acceptedRules").ifPresent(it ->
+                acceptedRules = it.getBoolean("acceptedRules").orElse(false));
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
@@ -83,11 +96,11 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IM
             } else if (n.reqTime + 30 * 1000L < now) {
                 n.setFinished();
                 iterator.remove();
-                ServerPlayerEntity to = this.getWorld().getServer().getPlayerManager().getPlayer(n.to);
+                ServerPlayerEntity to = Objects.requireNonNull(this.getWorld().getServer(), "cannot get server?").getPlayerManager().getPlayer(n.to);
                 if (to == null) continue;
-                logger.info(String.format("[tpa][timeout] %s -> %s", this, to));
-                this.sendSystemMessage(MutableText.of(new LiteralTextContent("[这里]")), Util.NIL_UUID);
-                to.sendSystemMessage(MutableText.of(new LiteralTextContent("[这里]")), Util.NIL_UUID);
+                logger.info("[tpa][timeout] {} -> {}", this, to);
+                this.sendMessage(MutableText.of(new Literal("[这里]")), true);
+                to.sendMessage(MutableText.of(new Literal("[这里]")), true);
             }
         }
         tpaReqs.values().removeIf(n -> n.finished);

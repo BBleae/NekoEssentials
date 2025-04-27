@@ -16,22 +16,22 @@ object TpahereCommand {
         dispatcher.register(
             CommandManager.literal("tpahere")
                 .then(
-                    CommandManager.argument<EntitySelector?>("target", EntityArgumentType.player())
-                        .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
+                    CommandManager.argument("target", EntityArgumentType.player())
+                        .executes { context: CommandContext<ServerCommandSource?>? ->
                             execute(
                                 context?.source, context?.source?.player,
                                 EntityArgumentType.getPlayer(context, "target")
                             )
-                        })
+                        }
                 )
                 .then(
-                    CommandManager.argument<EntitySelector?>("targets", EntityArgumentType.players())
-                        .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
+                    CommandManager.argument("targets", EntityArgumentType.players())
+                        .executes { context: CommandContext<ServerCommandSource?>? ->
                             TpahereCommand.execute(
                                 context.source, context?.source?.player,
                                 EntityArgumentType.getPlayers(context, "targets")
                             )
-                        })
+                        }
                 )
         )
     }
@@ -78,13 +78,13 @@ object TpahereCommand {
                                 .withHoverEvent(
                                     HoverEvent(
                                         HoverEvent.Action.SHOW_TEXT,
-                                        net.minecraft.text.Text.of("/tpaccept " + player.getName().asString())
+                                        net.minecraft.text.Text.of("/tpaccept " + player.name.asString())
                                     )
                                 )
                                 .withClickEvent(
                                     ClickEvent(
                                         ClickEvent.Action.RUN_COMMAND,
-                                        "/tpaccept " + player.getName().asString()
+                                        "/tpaccept " + player.name.asString()
                                     )
                                 )
                         })
@@ -97,13 +97,13 @@ object TpahereCommand {
                                 .withHoverEvent(
                                     HoverEvent(
                                         HoverEvent.Action.SHOW_TEXT,
-                                        net.minecraft.text.Text.of("/tpadeny " + player.getName().asString())
+                                        net.minecraft.text.Text.of("/tpadeny " + player.name.asString())
                                     )
                                 )
                                 .withClickEvent(
                                     ClickEvent(
                                         ClickEvent.Action.RUN_COMMAND,
-                                        "/tpadeny " + player.getName().asString()
+                                        "/tpadeny " + player.name.asString()
                                     )
                                 )
                         })

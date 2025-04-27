@@ -12,16 +12,16 @@ import java.util.stream.Stream
 
 object WarpCommand {
     val INVALID_WARP_POINT_EXCEPTION: DynamicCommandExceptionType =
-        DynamicCommandExceptionType(java.util.function.Function { name: Any? -> net.minecraft.text.Text.of("路径点 $name 不存在") })
+        DynamicCommandExceptionType { name: Any? -> net.minecraft.text.Text.of("路径点 $name 不存在") }
     private val INVALID_DIMENSION_EXCEPTION: DynamicCommandExceptionType =
-        DynamicCommandExceptionType(java.util.function.Function { id: Any? -> net.minecraft.text.Text.of("invalid warp dimension: $id") })
+        DynamicCommandExceptionType { id: Any? -> net.minecraft.text.Text.of("invalid warp dimension: $id") }
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
             CommandManager.literal("warp")
                 .then(
                     CommandManager.argument<String?>("target", StringArgumentType.word())
-                        .suggests(SuggestionProvider { context: CommandContext<ServerCommandSource?>?, builder: SuggestionsBuilder? ->
+                        .suggests { context: CommandContext<ServerCommandSource?>?, builder: SuggestionsBuilder? ->
                             CommandSource.suggestMatching(
                                 Stream.concat<T?>(
                                     NekoConfigParsed.warpPoints.keySet().stream(),
@@ -29,13 +29,13 @@ object WarpCommand {
                                 )
                                     .collect(Collectors.toSet()), builder
                             )
-                        })
-                        .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
+                        }
+                        .executes { context: CommandContext<ServerCommandSource?>? ->
                             execute(
                                 context.getSource(), context.getSource().getPlayer(),
                                 StringArgumentType.getString(context, "target")
                             )
-                        })
+                        }
                 )
         )
     }
@@ -43,7 +43,7 @@ object WarpCommand {
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource, player: ServerPlayerEntity, name: String?): Int {
         if (name == "spawn") {
-            val overworld: ServerWorld = source.getServer().getOverworld()
+            val overworld: ServerWorld = source.server.overworld
             val pos: BlockPos = overworld.getSpawnPos()
 
             logger.info(String.format("[warp] %s -> %s (%s)", player, name, pos))
@@ -63,7 +63,7 @@ object WarpCommand {
 
         val registryKey: net.minecraft.registry.RegistryKey<World?>? =
             net.minecraft.registry.RegistryKey.of<World?>(RegistryKeys.WORLD, net.minecraft.util.Identifier(loc.world))
-        val serverWorld: ServerWorld? = source.getServer().getWorld(registryKey)
+        val serverWorld: ServerWorld? = source.server.getWorld(registryKey)
         if (serverWorld == null) throw INVALID_DIMENSION_EXCEPTION.create(loc.world)
 
         logger.info(java.lang.String.format("[warp] %s -> %s (%s)", player, name, loc.asFullString()))

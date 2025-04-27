@@ -42,7 +42,7 @@ object TpadenyCommand {
             val playerManager: PlayerManager = source.getServer().getPlayerManager()
 
             val accepts: MutableList<net.minecraft.text.Text?> =
-                com.google.common.collect.Lists.newArrayList<net.minecraft.text.Text?>()
+                com.google.common.collect.Lists.newArrayList()
             for (req in reqs.values) {
                 val from: ServerPlayerEntity? = playerManager.getPlayer(req.from)
                 if (from == null) {
