@@ -47,9 +47,9 @@ object AcceptRuleCommand {
             MutableText.of(Literal("[这里]"))
                 .append(
                     MutableText.of(Literal("[这里]"))
-                        .styled { style: net.minecraft.text.Style? -> style!!.withColor(net.minecraft.util.Formatting.AQUA) }
+                        .styled { style: net.minecraft.text.Style? -> style!!.withColor(Formatting.AQUA) }
                 )
-                .append(player.getDisplayName())
+                .append(player.displayName)
                 .append(
                     MutableText.of(Literal("[这里]"))
                         .styled { style: Style? -> style!!.withColor(Formatting.AQUA) }

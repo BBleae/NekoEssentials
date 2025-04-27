@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import net.minecraft.network.packet.s2c.play.PositionFlag
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
@@ -13,6 +14,9 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
 import net.nekocraft.mixinInterfaces.IMixinServerPlayerEntity
 import net.nekocraft.utils.SavedLocation
+import net.minecraft.text.PlainTextContent.Literal
+import net.minecraft.text.MutableText
+import net.nekocraft.NekoEssentials.Companion.logger
 
 object BackCommand {
     private val NO_BACK_EXCEPTION: SimpleCommandExceptionType =
@@ -34,23 +38,21 @@ object BackCommand {
 
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource, player: ServerPlayerEntity): Int {
-        val loc: SavedLocation = (player as IMixinServerPlayerEntity).getLastLocation()
-        if (loc == null) throw NO_BACK_EXCEPTION.create()
+        val loc: SavedLocation = (player as IMixinServerPlayerEntity).lastLocation
 
-        val registryKey: net.minecraft.registry.RegistryKey<World?>? =
+        val registryKey =
             net.minecraft.registry.RegistryKey.of<World?>(RegistryKeys.WORLD, net.minecraft.util.Identifier(loc.world))
         val serverWorld: ServerWorld? = source.server.getWorld(registryKey)
         if (serverWorld == null) throw INVALID_DIMENSION_EXCEPTION.create(loc.world)
 
         logger.info(java.lang.String.format("[back][teleport] %s -> %s", player, loc.asFullString()))
-        (player as IMixinServerPlayerEntity).setLastLocation(
+        (player as IMixinServerPlayerEntity).lastLocation =
             SavedLocation(
-                player.getWorld().getRegistryKey().getValue().toString(),
-                player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch()
+                player.world.registryKey.value.toString(),
+                player.x, player.y, player.z, player.yaw, player.pitch
             )
-        )
-        player.teleport(serverWorld, loc.x, loc.y, loc.z, loc.yaw, loc.pitch)
-        source.sendFeedback(net.minecraft.text.Text.of("已传送到上次传送的位置"), false)
+        player.teleport(serverWorld, loc.x, loc.y, loc.z, HashSet<PositionFlag>(), loc.yaw, loc.pitch, false)
+        source.sendFeedback({ MutableText.of(Literal("已传送到上次传送的位置")) }, false)
 
         return 0
     }
