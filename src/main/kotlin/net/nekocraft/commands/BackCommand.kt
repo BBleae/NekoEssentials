@@ -6,17 +6,18 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.minecraft.network.packet.s2c.play.PositionFlag
+import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.world.World
+import net.minecraft.text.MutableText
+import net.minecraft.text.PlainTextContent.Literal
+import net.minecraft.util.Identifier
+import net.nekocraft.NekoEssentials.Companion.logger
 import net.nekocraft.mixinInterfaces.IMixinServerPlayerEntity
 import net.nekocraft.utils.SavedLocation
-import net.minecraft.text.PlainTextContent.Literal
-import net.minecraft.text.MutableText
-import net.nekocraft.NekoEssentials.Companion.logger
 
 object BackCommand {
     private val NO_BACK_EXCEPTION: SimpleCommandExceptionType =
@@ -28,20 +29,24 @@ object BackCommand {
         dispatcher.register(
             CommandManager.literal("back")
                 .executes { context: CommandContext<ServerCommandSource?>? ->
-                    execute(
-                        context?.source,
-                        context?.source?.player
-                    )
+                    context?.source?.player?.let {
+                        context.source?.let { source ->
+                            execute(
+                                source,
+                                it
+                            )
+                        }
+                    }?: -1
                 }
         )
     }
 
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource, player: ServerPlayerEntity): Int {
-        val loc: SavedLocation = (player as IMixinServerPlayerEntity).lastLocation
+        val loc: SavedLocation? = (player as IMixinServerPlayerEntity).lastLocation
+        if (loc == null) throw NO_BACK_EXCEPTION.create();
 
-        val registryKey =
-            net.minecraft.registry.RegistryKey.of(RegistryKeys.WORLD, net.minecraft.util.Identifier(loc.world))
+        val registryKey = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(loc.world))
         val serverWorld: ServerWorld? = source.server.getWorld(registryKey)
         if (serverWorld == null) throw INVALID_DIMENSION_EXCEPTION.create(loc.world)
 

@@ -1,6 +1,15 @@
 package net.nekocraft.commands
 
+import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import net.minecraft.server.command.CommandManager
+import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.server.network.ServerPlayerEntity
 import net.nekocraft.mixinInterfaces.IMixinServerPlayerEntity
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.nekocraft.NekoEssentials.Companion.logger
+
 
 object DenyruleCommand {
     private val ACCEPTED_EXCEPTION: SimpleCommandExceptionType =
@@ -10,10 +19,12 @@ object DenyruleCommand {
         dispatcher.register(
             CommandManager.literal("denyrule")
                 .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
-                    execute(
-                        context.getSource(),
-                        context.getSource().getPlayer()
-                    )
+                    context?.source?.player?.let {
+                        execute(
+                            context.source,
+                            it
+                        )
+                    } ?: -1
                 })
         )
     }
@@ -21,7 +32,7 @@ object DenyruleCommand {
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource?, player: ServerPlayerEntity): Int {
         logger.info(String.format("[rule][deny] %s", player))
-        if ((player as IMixinServerPlayerEntity).getAcceptedRules()) throw ACCEPTED_EXCEPTION.create()
+        if ((player as IMixinServerPlayerEntity).acceptedRules) throw ACCEPTED_EXCEPTION.create()
         player.networkHandler.disconnect(net.minecraft.text.Text.of("§e[NekoCraft] §c你拒绝遵守服务器规定"))
         return 0
     }
