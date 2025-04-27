@@ -19,7 +19,7 @@ object CommandRegistry {
         DenyruleCommand.register(dispatcher)
         TpahereCommand.register(dispatcher)
         HatCommand.register(dispatcher)
-        OpeninvCommand.register(dispatcher)
+        OpenInventoryCommand.register(dispatcher)
         OpenenderCommand.register(dispatcher)
     }
 }
