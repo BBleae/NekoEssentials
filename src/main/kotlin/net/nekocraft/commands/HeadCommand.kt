@@ -6,10 +6,14 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import net.minecraft.command.argument.GameProfileArgumentType
 import net.minecraft.command.argument.ItemStackArgument
+import net.minecraft.component.ComponentChanges
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.component.type.NbtComponent
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
@@ -33,11 +37,13 @@ object HeadCommand {
                         }
                 )
                 .executes { context: CommandContext<ServerCommandSource?>? ->
-                    context?.getSource()?.player?.let {
-                        execute(
-                            context.getSource(), it,
-                            context.getSource()?.player.getGameProfile()
-                        )
+                    context?.source?.player?.let {
+                        context.source?.player?.let { it1 ->
+                            execute(
+                                context.source, it,
+                                it1.gameProfile
+                            )
+                        }
                     }                    ?: -1
                 }
         )
@@ -47,10 +53,13 @@ object HeadCommand {
     private fun execute(source: ServerCommandSource?, player: ServerPlayerEntity, profile: GameProfile): Int {
         val nbt = NbtCompound()
         nbt.putString("SkullOwner", profile.name)
-        val item = ItemStackArgument(Items.PLAYER_HEAD, nbt)
+        val nbtComponent = NbtComponent.of(nbt)
+        val builder = ComponentChanges.builder()
+        builder.add(DataComponentTypes.CUSTOM_DATA,nbtComponent)
+        val item = ItemStackArgument(   RegistryEntry.of(Items.PLAYER_HEAD), builder.build())
         val itemStack: ItemStack = item.createStack(1, false)
         logger.info(String.format("[head] %s with %s's skull", player, profile.name))
-        val bl: Boolean = player.getInventory().insertStack(itemStack)
+        val bl: Boolean = player.inventory.insertStack(itemStack)
         if (bl && itemStack.isEmpty) {
             itemStack.count = 1
             val itemEntity: ItemEntity? = player.dropItem(itemStack, false)

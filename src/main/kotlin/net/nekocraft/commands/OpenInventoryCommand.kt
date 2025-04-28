@@ -3,31 +3,31 @@ package net.nekocraft.commands
 import com.mojang.authlib.GameProfile
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
-import net.minecraft.command.argument.GameProfileArgumentType
-import net.minecraft.item.Items
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.Text
-import net.minecraft.world.PlayerSaveHandler
-import net.nekocraft.NekoEssentials.Companion.logger
-import net.minecraft.server.command.CommandManager
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import net.minecraft.command.argument.EntityArgumentType
+import net.minecraft.command.argument.GameProfileArgumentType
 import net.minecraft.entity.EntityEquipment
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtList
 import net.minecraft.screen.GenericContainerScreenHandler
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.CommandManager
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
-import net.nekocraft.mixin.MixinPlayerManagerAccessor
-import net.nekocraft.mixinInterfaces.IMixinPlayerSaveHandler
-import net.minecraft.command.argument.EntityArgumentType
+import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.GameMode
+import net.minecraft.world.PlayerSaveHandler
+import net.nekocraft.NekoEssentials.Companion.logger
+import net.nekocraft.mixin.MixinPlayerManagerAccessor
+import net.nekocraft.mixinInterfaces.IMixinPlayerSaveHandler
 
 object OpenInventoryCommand {
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {

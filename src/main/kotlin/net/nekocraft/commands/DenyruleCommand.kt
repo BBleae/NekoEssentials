@@ -2,13 +2,13 @@ package net.nekocraft.commands
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
-import net.nekocraft.mixinInterfaces.IMixinServerPlayerEntity
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.nekocraft.NekoEssentials.Companion.logger
+import net.nekocraft.mixinInterfaces.IMixinServerPlayerEntity
 
 
 object DenyruleCommand {
@@ -18,14 +18,14 @@ object DenyruleCommand {
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
             CommandManager.literal("denyrule")
-                .executes(com.mojang.brigadier.Command { context: CommandContext<ServerCommandSource?>? ->
+                .executes { context: CommandContext<ServerCommandSource?>? ->
                     context?.source?.player?.let {
                         execute(
                             context.source,
                             it
                         )
                     } ?: -1
-                })
+                }
         )
     }
 

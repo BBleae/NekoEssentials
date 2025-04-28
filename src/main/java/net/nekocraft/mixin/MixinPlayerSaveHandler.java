@@ -6,11 +6,11 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.util.Util;
 import net.minecraft.world.PlayerSaveHandler;
+import net.nekocraft.mixinInterfaces.IMixinPlayerSaveHandler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import net.nekocraft.mixinInterfaces.IMixinPlayerSaveHandler;
 
 import java.io.File;
 

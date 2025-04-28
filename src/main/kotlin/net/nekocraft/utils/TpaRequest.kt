@@ -23,11 +23,7 @@ class TpaRequest @JvmOverloads constructor(
     var here: Boolean
 
     constructor(server: MinecraftServer, from: UUID?, to: UUID?, here: Boolean) : this(
-        server,
-        from,
-        to,
-        net.minecraft.util.Util.getMeasuringTimeMs(),
-        here
+        server, from, to, net.minecraft.util.Util.getMeasuringTimeMs(), here
     )
 
     init {
@@ -44,17 +40,12 @@ class TpaRequest @JvmOverloads constructor(
     }
 
     private fun teleportPlayer(a: ServerPlayerEntity, b: ServerPlayerEntity) {
-        (a as IMixinServerPlayerEntity).setLastLocation(
-            SavedLocation(
-                a.world.registryKey.value.toString(),
-                a.x, a.y, a.z, a.yaw, a.pitch
-            )
+        (a as IMixinServerPlayerEntity).lastLocation = SavedLocation(
+            a.world.registryKey.value.toString(), a.x, a.y, a.z, a.yaw, a.pitch
         )
+
         a.teleport(
-            b.world as ServerWorld,
-            b.x, b.y, b.z,
-            EnumSet.noneOf(PositionFlag::class.java),
-            b.yaw, b.pitch, false
+            b.world as ServerWorld, b.x, b.y, b.z, EnumSet.noneOf(PositionFlag::class.java), b.yaw, b.pitch, false
         )
     }
 
@@ -66,10 +57,8 @@ class TpaRequest @JvmOverloads constructor(
             this.setFinished()
             return
         }
-        if (this.here)
-            teleportPlayer(to, from)
-        else
-            teleportPlayer(from, to)
+        if (this.here) teleportPlayer(to, from)
+        else teleportPlayer(from, to)
 
         this.setFinished()
     }

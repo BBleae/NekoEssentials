@@ -5,7 +5,6 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import net.minecraft.network.packet.s2c.play.PositionFlag
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.command.CommandManager
@@ -44,7 +43,7 @@ object BackCommand {
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource, player: ServerPlayerEntity): Int {
         val loc: SavedLocation? = (player as IMixinServerPlayerEntity).lastLocation
-        if (loc == null) throw NO_BACK_EXCEPTION.create();
+        if (loc == null) throw NO_BACK_EXCEPTION.create()
 
         val registryKey = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(loc.world))
         val serverWorld: ServerWorld? = source.server.getWorld(registryKey)
@@ -56,7 +55,7 @@ object BackCommand {
                 player.world.registryKey.value.toString(),
                 player.x, player.y, player.z, player.yaw, player.pitch
             )
-        player.teleport(serverWorld, loc.x, loc.y, loc.z, HashSet<PositionFlag>(), loc.yaw, loc.pitch, false)
+        player.teleport(serverWorld, loc.x, loc.y, loc.z, HashSet(), loc.yaw, loc.pitch, false)
         source.sendFeedback({ MutableText.of(Literal("已传送到上次传送的位置")) }, false)
 
         return 0

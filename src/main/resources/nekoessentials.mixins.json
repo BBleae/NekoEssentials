@@ -5,10 +5,8 @@
   "mixins": [
     "MixinPlayerManager",
     "MixinPlayerManagerAccessor",
-    "MixinServerPlayNetworkHandler",
-    "MixinServerPlayerEntity",
-    "MixinPlayerSaveHandler"
-  ],
+    "MixinPlayerSaveHandler",
+    "MixinServerPlayerEntity"],
   "injectors": {
     "defaultRequire": 1
   }

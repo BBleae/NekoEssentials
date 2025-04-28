@@ -12,8 +12,8 @@ import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
-import net.minecraft.text.PlainTextContent.Literal
 import net.minecraft.text.MutableText
+import net.minecraft.text.PlainTextContent.Literal
 import net.nekocraft.NekoEssentials.Companion.logger
 
 object HatCommand {
@@ -38,7 +38,7 @@ object HatCommand {
 
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource, player: ServerPlayerEntity): Int {
-        val itemStack: ItemStack = player.getMainHandStack()
+        val itemStack: ItemStack = player.mainHandStack
         if (itemStack.isEmpty) throw NO_ITEM_EXCEPTION.create()
 
         val hat: ItemStack = player.getEquippedStack(EquipmentSlot.HEAD)
@@ -47,7 +47,7 @@ object HatCommand {
         player.equipStack(EquipmentSlot.HEAD, itemStackCopy)
         itemStack.decrement(1)
         if (!hat.isEmpty) {
-            val bl: Boolean = player.getInventory().insertStack(hat)
+            val bl: Boolean = player.inventory.insertStack(hat)
             if (bl && hat.isEmpty) {
                 hat.count = 1
                 val itemEntity: ItemEntity? = player.dropItem(hat, false)
