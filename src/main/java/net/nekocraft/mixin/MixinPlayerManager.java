@@ -92,7 +92,7 @@ public abstract class MixinPlayerManager {
                     logger.warn("Cannot send rules message to player: {}", e.getMessage());
                 }
                 return style;
-            })).append("  §e来阅读服务器规定\n  §7点击确认后则默认您已阅读并遵守服务器规定!\n\n    ").append(MutableText.of(new Literal("[这里]")).styled(style -> style.withColor(Formatting.GREEN).withHoverEvent(new ShowText(Text.of("/acceptrule"))).withClickEvent(new RunCommand("/acceptrule")))).append("§7 或使用指令 /acceptrule\n\n    ").append(MutableText.of(new Literal("[这里]")).styled(style -> style.withColor(Formatting.RED).withHoverEvent(new ShowText(Text.of("/denyrule"))).withClickEvent(new RunCommand("/denyrule")))).append("§7 或使用指令 /denyrule\n");
+            })).append("  §e来阅读服务器规定\n  §7点击确认后则默认您已阅读并遵守服务器规定!\n\n    ").append(MutableText.of(new Literal("[这里]")).styled(style -> style.withColor(Formatting.GREEN).withHoverEvent(new ShowText(Text.of("/acceptRule"))).withClickEvent(new RunCommand("/acceptRule")))).append("§7 或使用指令 /acceptRule\n\n    ").append(MutableText.of(new Literal("[这里]")).styled(style -> style.withColor(Formatting.RED).withHoverEvent(new ShowText(Text.of("/denyrule"))).withClickEvent(new RunCommand("/denyrule")))).append("§7 或使用指令 /denyrule\n");
         player.sendMessage(joinMessage);
     }
 }

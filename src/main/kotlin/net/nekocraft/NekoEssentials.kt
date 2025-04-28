@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.luckperms.api.LuckPerms
-import net.luckperms.api.LuckPermsProvider
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.world.ServerWorld
@@ -23,7 +22,6 @@ import org.apache.logging.log4j.Logger
 
 
 class NekoEssentials : ModInitializer {
-    var luckPermsApi: LuckPerms? = null
 
     override fun onInitialize() {
         logger.trace("onInitializeServer")
@@ -73,9 +71,6 @@ class NekoEssentials : ModInitializer {
 
     private fun onServerStarting(server: MinecraftServer?) {
         logger.trace("onServerStarting")
-
-        logger.debug("get LuckPerms api")
-        luckPermsApi = LuckPermsProvider.get()
     }
 
     private fun onServerStopping(server: MinecraftServer?) {

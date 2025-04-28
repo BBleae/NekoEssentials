@@ -17,7 +17,7 @@ object DenyruleCommand {
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
-            CommandManager.literal("denyrule")
+            CommandManager.literal("denyRule")
                 .executes { context: CommandContext<ServerCommandSource?>? ->
                     context?.source?.player?.let {
                         execute(
