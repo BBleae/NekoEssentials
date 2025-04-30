@@ -4,21 +4,16 @@ import com.mojang.authlib.GameProfile
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import eu.pb4.sgui.api.elements.GuiElementBuilder
 import net.minecraft.command.argument.GameProfileArgumentType
-import net.minecraft.command.argument.ItemStackArgument
-import net.minecraft.component.ComponentChanges
-import net.minecraft.component.DataComponentTypes
-import net.minecraft.component.type.NbtComponent
 import net.minecraft.entity.ItemEntity
-import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.nekocraft.NekoEssentials
 import net.nekocraft.NekoEssentials.Companion.logger
 
 object HeadCommand {
@@ -33,7 +28,7 @@ object HeadCommand {
                                     context.source, it,
                                     GameProfileArgumentType.getProfileArgument(context, "player").iterator().next()
                                 )
-                            }                             ?: -1
+                            } ?: -1
                         }
                 )
                 .executes { context: CommandContext<ServerCommandSource?>? ->
@@ -44,20 +39,17 @@ object HeadCommand {
                                 it1.gameProfile
                             )
                         }
-                    }                    ?: -1
+                    } ?: -1
                 }
         )
     }
 
     @Throws(CommandSyntaxException::class)
     private fun execute(source: ServerCommandSource?, player: ServerPlayerEntity, profile: GameProfile): Int {
-        val nbt = NbtCompound()
-        nbt.putString("SkullOwner", profile.name)
-        val nbtComponent = NbtComponent.of(nbt)
-        val builder = ComponentChanges.builder()
-        builder.add(DataComponentTypes.CUSTOM_DATA,nbtComponent)
-        val item = ItemStackArgument(   RegistryEntry.of(Items.PLAYER_HEAD), builder.build())
-        val itemStack: ItemStack = item.createStack(1, false)
+        val itemStack = GuiElementBuilder()
+            .setItem(Items.PLAYER_HEAD)
+            .setSkullOwner(profile, NekoEssentials.server)
+            .asStack()
         logger.info(String.format("[head] %s with %s's skull", player, profile.name))
         val bl: Boolean = player.inventory.insertStack(itemStack)
         if (bl && itemStack.isEmpty) {

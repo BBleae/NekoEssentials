@@ -65,7 +65,7 @@ object TpAcceptCommand {
             throw NO_TPA_EXCEPTION.create()
         }
         if (reqs.size > 1) {
-            val msg: MutableText = MutableText.of(Literal("[这里]"))
+            val msg: MutableText = MutableText.of(Literal("请从下列待接收请求中选择一个想要接受的请求: "))
             val playerManager: PlayerManager = source.server.playerManager
 
             val accepts: MutableList<Text?> = com.google.common.collect.Lists.newArrayList()
@@ -78,7 +78,7 @@ object TpAcceptCommand {
                 } else {
                     accepts.add(
                         Texts.bracketed(
-                            MutableText.of(Literal("[这里]")).append(from.getDisplayName())
+                            MutableText.of(Literal("")).append(from.getDisplayName())
                         ).styled { style: Style? ->
                             style!!.withColor(Formatting.AQUA)
                                 .withHoverEvent(ShowText(Text.of("/tpaccept " + from.name.string)))
@@ -113,8 +113,8 @@ object TpAcceptCommand {
         }
         logger.info(String.format("[tpa][accept] %s -> %s", target, player))
         req.execute()
-        target.sendMessage(MutableText.of(Literal("[这里]")))
-        source.sendFeedback({ MutableText.of(Literal("[这里]")) }, false)
+        target.sendMessage(MutableText.of(Literal("发送到 ")).append(player.displayName).append(" 的传送请求已被接受"))
+        source.sendFeedback({ MutableText.of(Literal("已接受来自 ")).append(target.displayName).append(" 的传送请求") }, false)
         return 0
     }
 }

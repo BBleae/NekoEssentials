@@ -40,14 +40,14 @@ object HandCommand {
         if (itemStack.isEmpty) throw NO_ITEM_EXCEPTION.create()
 
         logger.info(String.format("[hand] %s with %s", player, itemStack))
-        val text: MutableText? = MutableText.of(Literal("[这里]"))
+        val text: MutableText? = MutableText.of(Literal(""))
             .append(player.getDisplayName())
             .append(
-                MutableText.of(Literal("[这里]"))
-                    .styled { style: Style? -> style!!.withColor(Formatting.GRAY) }
+                MutableText.of(Literal(" 向你展示了 " + itemStack.count + " 个物品: "))
+                    .styled { style: Style? -> style?.withColor(Formatting.GRAY) }
             )
             .append(itemStack.toHoverableText())
-        source.server.playerManager.broadcast(text, false) // TODO fix this shit
+        source.server.playerManager.broadcast(text, false)
         return 0
     }
 }

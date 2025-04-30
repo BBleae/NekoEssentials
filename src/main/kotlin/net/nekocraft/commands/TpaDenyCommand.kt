@@ -20,10 +20,9 @@ import java.util.*
 object TpaDenyCommand {
     private val NO_TPA_EXCEPTION: SimpleCommandExceptionType =
         SimpleCommandExceptionType(Text.of("你还没有收到过任何传送请求"))
-    private val NO_TPA_FROM_EXCEPTION: DynamicCommandExceptionType =
-        DynamicCommandExceptionType { playerName: Any? ->
-            Text.of("你还没有收到过来自 $playerName 的任何传送请求")
-        }
+    private val NO_TPA_FROM_EXCEPTION: DynamicCommandExceptionType = DynamicCommandExceptionType { playerName: Any? ->
+        Text.of("你还没有收到过来自 $playerName 的任何传送请求")
+    }
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
@@ -32,17 +31,11 @@ object TpaDenyCommand {
                 .executes { context: CommandContext<ServerCommandSource?>? ->
                     context?.source?.let { source ->
                         source.player?.let { player ->
-                            execute(
-                                source, player, EntityArgumentType.getPlayer(context, "target")
-                            )
+                            execute(source, player, EntityArgumentType.getPlayer(context, "target"))
                         }
                     } ?: -1
                 }).executes { context: CommandContext<ServerCommandSource?>? ->
-            context?.source?.let { source ->
-                source.player?.let { player ->
-                    execute(source, player)
-                }
-            } ?: -1
+            context?.source?.let { source -> source.player?.let { player -> execute(source, player) } } ?: -1
         })
     }
 
@@ -53,7 +46,8 @@ object TpaDenyCommand {
             throw NO_TPA_EXCEPTION.create()
         }
         if (reqs.size > 1) {
-            val msg: MutableText = MutableText.of(PlainTextContent.Literal("[这里]"))
+            val msg: MutableText =
+                MutableText.of(PlainTextContent.Literal("请从下列待接收请求中选择一个想要拒绝的请求: "))
             val playerManager: PlayerManager = source.server.playerManager
 
             val accepts: MutableList<Text?> = com.google.common.collect.Lists.newArrayList()
@@ -64,19 +58,11 @@ object TpaDenyCommand {
                 } else {
                     accepts.add(
                         Texts.bracketed(
-                            MutableText.of(PlainTextContent.Literal("[这里]")).append(from.getDisplayName())
-                                .styled { style: Style? ->
-                                    style!!.withColor(Formatting.YELLOW).withHoverEvent(
-                                        HoverEvent.ShowText(
-                                            Text.of("/tpadeny " + from.name.string)
-                                        )
-                                    ).withClickEvent(
-                                        ClickEvent.RunCommand(
-                                            "/tpadeny " + from.name.string
-                                        )
-                                    )
-                                }
-                        )
+                            MutableText.of(PlainTextContent.Literal("")).append(from.displayName).styled {
+                                it.withColor(Formatting.YELLOW)
+                                    .withHoverEvent(HoverEvent.ShowText(Text.of("/tpadeny " + from.name.string)))
+                                    .withClickEvent(ClickEvent.RunCommand("/tpadeny " + from.name.string))
+                            })
                     )
                 }
             }
@@ -106,11 +92,13 @@ object TpaDenyCommand {
         req.setFinished()
         reqs.remove(req.from)
         target.sendMessage(
-            MutableText.of(PlainTextContent.Literal("[这里]"))
+            MutableText.of(PlainTextContent.Literal("发送到 ")).append(player.displayName).append(" 的传送请求已被拒绝")
                 .styled { style: Style? -> style!!.withColor(Formatting.RED) },
         )
         source.sendFeedback(
-            { MutableText.of(PlainTextContent.Literal("[这里]")) }, false
+            {
+                MutableText.of(PlainTextContent.Literal("已拒绝来自 ")).append(target.displayName).append(" 的传送请求")
+            }, false
         )
         return 0
     }

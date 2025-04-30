@@ -2,6 +2,7 @@ package net.nekocraft
 
 import carpet.CarpetServer
 import com.mojang.brigadier.CommandDispatcher
+import io.netty.buffer.Unpooled
 import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.annotation.Config
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer
@@ -9,7 +10,9 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
-import net.luckperms.api.LuckPerms
+import net.minecraft.network.PacketByteBuf
+import net.minecraft.network.packet.BrandCustomPayload
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.world.ServerWorld
@@ -19,6 +22,7 @@ import net.nekocraft.config.NekoConfig
 import net.nekocraft.config.NekoConfigParsed
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+
 
 
 class NekoEssentials : ModInitializer {
@@ -40,6 +44,9 @@ class NekoEssentials : ModInitializer {
 
         logger.debug("registering event listeners")
         ServerLifecycleEvents.SERVER_STARTING.register(ServerLifecycleEvents.ServerStarting { server: MinecraftServer? ->
+            server?.let {
+                NekoEssentials.server = server
+            }
             this.onServerStarting(
                 server
             )
@@ -52,7 +59,7 @@ class NekoEssentials : ModInitializer {
 
         CommandRegistrationCallback.EVENT.register(
             CommandRegistrationCallback
-            {dispatcher, access, environment ->
+            { dispatcher, access, environment ->
                 this.onCommandRegistering(
                     dispatcher, environment.dedicated
                 )
@@ -94,15 +101,13 @@ class NekoEssentials : ModInitializer {
 
                 1 -> message = "正在与" + server.playerManager.currentPlayerCount + "只猫猫玩耍的NekoCraft"
             }
-            // TODO send packet to all players
-//            for (player in server.playerManager.playerList) {
-//                player.networkHandler.sendPacket(
-//                    CustomPayloadS2CPacket(
-//                        CustomPayloadS2CPacket.BRAND,
-//                        PacketByteBuf(Unpooled.buffer()).writeString(message)
-//                    )
-//                )
-//            }
+            for (player in server.playerManager.playerList) {
+                player.networkHandler.sendPacket(
+                    CustomPayloadS2CPacket(
+                        BrandCustomPayload(PacketByteBuf(Unpooled.buffer()).writeString(message).readString())
+                    )
+                )
+            }
         }
     }
 
@@ -110,8 +115,9 @@ class NekoEssentials : ModInitializer {
         @JvmField
         var logger: Logger = LogManager.getLogger("NekoEssentials")
         var rawConfig: NekoConfig? = null
+        var server: MinecraftServer? = null
 
-        fun getLogger():Logger {
+        fun getLogger(): Logger {
             return logger
         }
 

@@ -25,12 +25,12 @@ class SavedLocation(
 
     fun asNBT(): NbtCompound {
         val nbtCompound = NbtCompound()
-            nbtCompound.putString("world", this.world)
-            nbtCompound.putDouble("x", this.x)
-            nbtCompound.putDouble("y", this.y)
-            nbtCompound.putDouble("z", this.z)
-            nbtCompound.putFloat("yaw", this.yaw)
-            nbtCompound.putFloat("pitch", this.pitch)
+        nbtCompound.putString("world", this.world)
+        nbtCompound.putDouble("x", this.x)
+        nbtCompound.putDouble("y", this.y)
+        nbtCompound.putDouble("z", this.z)
+        nbtCompound.putFloat("yaw", this.yaw)
+        nbtCompound.putFloat("pitch", this.pitch)
         return nbtCompound
     }
 
@@ -45,6 +45,7 @@ class SavedLocation(
                         0f, 0f
                     )
                 }
+
                 6 -> {
                     SavedLocation(
                         strings[0]!!,
@@ -52,6 +53,7 @@ class SavedLocation(
                         strings[4]!!.toFloat(), strings[5]!!.toFloat()
                     )
                 }
+
                 else -> {
                     throw RuntimeException("Location string is invalid. ($str)")
                 }

@@ -26,18 +26,11 @@ object BackCommand {
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
-            CommandManager.literal("back")
-                .executes { context: CommandContext<ServerCommandSource?>? ->
-                    context?.source?.player?.let {
-                        context.source?.let { source ->
-                            execute(
-                                source,
-                                it
-                            )
-                        }
-                    }?: -1
-                }
-        )
+            CommandManager.literal("back").executes { context: CommandContext<ServerCommandSource?>? ->
+                context?.source?.let { source ->
+                    source.player?.let { player -> execute(source, player) }
+                } ?: -1
+            })
     }
 
     @Throws(CommandSyntaxException::class)

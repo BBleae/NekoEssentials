@@ -42,7 +42,8 @@ object OpenInventoryCommand {
                                     it.player?.let { player ->
                                         execute(
                                             source, player,
-                                            GameProfileArgumentType.getProfileArgument(context, "player").iterator().next()
+                                            GameProfileArgumentType.getProfileArgument(context, "player").iterator()
+                                                .next()
                                         )
                                     }
                                 }
@@ -60,7 +61,8 @@ object OpenInventoryCommand {
         } else {
             val saveHandler: PlayerSaveHandler =
                 (source.server.playerManager as MixinPlayerManagerAccessor).getSaveHandler()
-            val playerData: NbtCompound? = (saveHandler as IMixinPlayerSaveHandler).`nekoEssentials$loadPlayerData`(profile)
+            val playerData: NbtCompound? =
+                (saveHandler as IMixinPlayerSaveHandler).`nekoEssentials$loadPlayerData`(profile)
             if (playerData == null) throw EntityArgumentType.PLAYER_NOT_FOUND_EXCEPTION.create()
 
             val playerEntity: PlayerEntity =

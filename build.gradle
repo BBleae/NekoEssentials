@@ -25,6 +25,10 @@ repositories {
 	}
 	maven { url 'https://masa.dy.fi/maven' }
 //	maven { url 'https://repo.lucko.me/' }
+	maven{
+		name = "Nucleoid"
+		url = "https://maven.nucleoid.xyz/"
+	}
 }
 
 loom {
@@ -62,7 +66,8 @@ dependencies {
 	compileOnly 'net.luckperms:api:5.4'
 
 	implementation "com.google.guava:guava:33.4.8-jre"
-
+	modImplementation(include("eu.pb4:placeholder-api:2.6.3+1.21.5"))
+	modImplementation include("eu.pb4:sgui:1.9.0+1.21.5")
 }
 
 processResources {
@@ -116,5 +121,16 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+
+afterEvaluate {
+	configurations.runtimeClasspath.forEach { file ->
+		if (file.name.startsWith("sponge-mixin")) {
+			tasks.named("runClient", JavaExec) {
+				jvmArgs("-javaagent:${file.absolutePath}")
+			}
+		}
 	}
 }

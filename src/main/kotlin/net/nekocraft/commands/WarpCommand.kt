@@ -40,7 +40,7 @@ object WarpCommand {
                                 ).collect(Collectors.toSet()), builder
                             )
                         }.executes { context: CommandContext<ServerCommandSource?>? ->
-                            context?.getSource()?.let { source ->
+                            context?.source?.let { source ->
                                 source.player?.let { player ->
                                     execute(source, player, StringArgumentType.getString(context, "target"))
                                     1 // 显式返回1表示成功执行
@@ -70,7 +70,7 @@ object WarpCommand {
         if (loc == null) throw INVALID_WARP_POINT_EXCEPTION.create(name)
 
         val registryKey: net.minecraft.registry.RegistryKey<World?>? =
-            net.minecraft.registry.RegistryKey.of<World?>(RegistryKeys.WORLD, Identifier.of(loc.world))
+            net.minecraft.registry.RegistryKey.of(RegistryKeys.WORLD, Identifier.of(loc.world))
         val serverWorld: ServerWorld? = source.server.getWorld(registryKey)
         if (serverWorld == null) throw INVALID_DIMENSION_EXCEPTION.create(loc.world)
 

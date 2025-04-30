@@ -10,7 +10,9 @@ import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
+import net.minecraft.world.GameMode
 import net.minecraft.world.World
 import net.nekocraft.NekoEssentials.Companion.logger
 import net.nekocraft.mixinInterfaces.IMixinServerPlayerEntity
@@ -18,10 +20,10 @@ import net.nekocraft.utils.SavedLocation
 
 
 object ToggleCommand {
-    private val playerToGameMode: MutableMap<String?, net.minecraft.world.GameMode?> = HashMap()
+    private val playerToGameMode: MutableMap<String?, GameMode?> = HashMap()
 
     private val INVALID_DIMENSION_EXCEPTION: DynamicCommandExceptionType =
-        DynamicCommandExceptionType { id: Any? -> net.minecraft.text.Text.of("invalid home dimension: $id") }
+        DynamicCommandExceptionType { id: Any? -> Text.of("invalid home dimension: $id") }
 
     fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
@@ -45,7 +47,7 @@ object ToggleCommand {
             logger.info(java.lang.String.format("[toggle][set] %s -> %s", player, loc.asFullString()))
             (player as IMixinServerPlayerEntity).toggleLocation = loc
             playerToGameMode.put(player.uuidAsString, player.interactionManager.gameMode)
-            player.changeGameMode(net.minecraft.world.GameMode.SPECTATOR)
+            player.changeGameMode(GameMode.SPECTATOR)
         } else {
             val loc: SavedLocation? = (player as IMixinServerPlayerEntity).toggleLocation
             if (loc != null) {
@@ -60,7 +62,7 @@ object ToggleCommand {
                 player.changeGameMode(playerToGameMode[player.uuidAsString])
                 playerToGameMode.remove(player.uuidAsString)
             } else {
-                player.changeGameMode(net.minecraft.world.GameMode.DEFAULT)
+                player.changeGameMode(GameMode.DEFAULT)
             }
         }
         return 0

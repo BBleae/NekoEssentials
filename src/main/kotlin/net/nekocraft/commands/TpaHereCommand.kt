@@ -49,7 +49,7 @@ object TpaHereCommand {
 
         source.sendFeedback(
             {
-                MutableText.of(Literal("[这里]"))
+                MutableText.of(Literal("已成功向 "))
                     .append(Texts.join(targets.stream().map<Text?> { obj: ServerPlayerEntity? -> obj?.displayName }
                         .toList(), Text.of(", "))).append(" 发送传送请求")
             }, false
@@ -67,21 +67,20 @@ object TpaHereCommand {
         logger.info(String.format("[tpahere][send] %s -> %s", player, target))
 
         target.sendMessage(
-            MutableText.of(Literal("[这里]")).append(
-                MutableText.of(Literal("[这里]")).styled { style: Style? ->
-                    style!!.withColor(Formatting.AQUA).withHoverEvent(
-                        HoverEvent.ShowText(Text.of("/tpaccept " + player.name.string))
-                    ).withClickEvent(ClickEvent.RunCommand("/tpaccept " + player.name.string))
-                }).append("  ").append(
-                MutableText.of(Literal("[这里]")).styled { style: Style? ->
-                    style!!.withColor(Formatting.DARK_AQUA)
+            MutableText.of(Literal("")).append(player.getDisplayName()).append(" 想要你传送到他的位置  ")
+                .append(MutableText.of(Literal("[接受]")).styled {
+                    it.withColor(Formatting.AQUA)
+                        .withHoverEvent(HoverEvent.ShowText(Text.of("/tpaccept " + player.name.string)))
+                        .withClickEvent(ClickEvent.RunCommand("/tpaccept " + player.name.string))
+                }).append("  ").append(MutableText.of(Literal("[拒绝]")).styled {
+                    it.withColor(Formatting.DARK_AQUA)
                         .withHoverEvent(HoverEvent.ShowText(Text.of("/tpadeny " + player.name.string)))
                         .withClickEvent(ClickEvent.RunCommand("/tpadeny " + player.name.string))
                 })
         )
         if (!skipLog) source.sendFeedback(
             {
-                MutableText.of(Literal("[这里]")).append(target.getDisplayName()).append(" 发送传送请求")
+                MutableText.of(Literal("已成功向 ")).append(target.getDisplayName()).append(" 发送传送请求")
             }, false
         )
 

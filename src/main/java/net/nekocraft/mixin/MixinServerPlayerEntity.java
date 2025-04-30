@@ -60,6 +60,7 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IM
 
     @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
     public void afterReadCustomDataFromNbt(NbtCompound nbt, CallbackInfo ci) {
+        logger.warn("[mixin]reading acceptedRules");
         nbt.getCompound("homeLocation").ifPresent(it ->
                 homeLocation = SavedLocation.formNBT(it));
 
@@ -69,8 +70,13 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IM
         nbt.getCompound("toggleLocation").ifPresent(it ->
                 toggleLocation = SavedLocation.formNBT(it));
 
-        nbt.getCompound("acceptedRules").ifPresent(it ->
-                acceptedRules = it.getBoolean("acceptedRules").orElse(false));
+        acceptedRules = nbt.getBoolean("acceptedRules", false);
+
+    }
+
+    @Inject(method = "readCustomDataFromNbt", at = @At("HEAD"))
+    public void beforeReadCustomDataFromNbt(NbtCompound nbt, CallbackInfo ci) {
+        logger.warn("[mixin]start reading acceptedRules");
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
@@ -99,8 +105,8 @@ public abstract class MixinServerPlayerEntity extends PlayerEntity implements IM
                 ServerPlayerEntity to = Objects.requireNonNull(this.getWorld().getServer(), "cannot get server?").getPlayerManager().getPlayer(n.to);
                 if (to == null) continue;
                 logger.info("[tpa][timeout] {} -> {}", this, to);
-                this.sendMessage(MutableText.of(new Literal("[这里]")), true);
-                to.sendMessage(MutableText.of(new Literal("[这里]")), true);
+                this.sendMessage(MutableText.of(new Literal("发向 ")).append(to.getDisplayName()).append(" 的传送请求已超时"), true);
+                to.sendMessage(MutableText.of(new Literal("来自 ")).append(this.getDisplayName()).append(" 的传送请求已超时"), true);
             }
         }
         tpaReqs.values().removeIf(n -> n.finished);
